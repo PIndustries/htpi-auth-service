@@ -85,6 +85,9 @@ class AuthService:
             await self.nc.subscribe("htpi.auth.verify", cb=self.handle_verify)
             await self.nc.subscribe("htpi.auth.refresh", cb=self.handle_refresh)
             
+            # Subscribe to health check requests
+            await self.nc.subscribe("htpi.health.htpi.auth.service", cb=self.handle_health_check)
+            
             logger.info("Auth service subscriptions established")
         except Exception as e:
             logger.error(f"Failed to connect to NATS: {str(e)}")
@@ -261,8 +264,46 @@ class AuthService:
                 'error': 'Refresh failed'
             }).encode())
     
+    async def handle_health_check(self, msg):
+        """Handle health check requests"""
+        try:
+            data = json.loads(msg.data.decode())
+            request_id = data.get('requestId')
+            client_id = data.get('clientId')
+            
+            # Calculate uptime
+            uptime = datetime.utcnow() - self.start_time if hasattr(self, 'start_time') else timedelta(0)
+            
+            health_response = {
+                'serviceId': 'htpi-auth-service',
+                'status': 'healthy',
+                'message': 'Authentication service operational',
+                'version': '1.0.0',
+                'uptime': str(uptime),
+                'requestId': request_id,
+                'clientId': client_id,
+                'timestamp': datetime.utcnow().isoformat(),
+                'stats': {
+                    'total_logins': getattr(self, 'login_count', 0),
+                    'active_tokens': getattr(self, 'active_tokens', 0)
+                }
+            }
+            
+            # Send response back to admin portal
+            await self.nc.publish(f"admin.health.response.{client_id}", 
+                                json.dumps(health_response).encode())
+            
+            logger.info(f"Health check response sent for request {request_id}")
+            
+        except Exception as e:
+            logger.error(f"Error handling health check: {str(e)}")
+    
     async def run(self):
         """Run the service"""
+        self.start_time = datetime.utcnow()
+        self.login_count = 0
+        self.active_tokens = 0
+        
         await self.connect()
         logger.info("Auth service is running...")
         
