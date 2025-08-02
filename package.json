@@ -1,0 +1,13 @@
+{
+  "name": "htpi-auth-service",
+  "version": "1.0.0",
+  "description": "HTPI Authentication Service",
+  "main": "app.py",
+  "scripts": {
+    "start": "python app.py",
+    "dev": "python app.py"
+  },
+  "keywords": ["htpi", "auth", "microservice"],
+  "author": "HTPI",
+  "license": "ISC"
+}
