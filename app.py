@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 # Configuration
 NATS_URL = os.environ.get('NATS_URL', 'nats://localhost:4222')
 NATS_USER = os.environ.get('NATS_USER')
-NATS_PASS = os.environ.get('NATS_PASS')
+NATS_PASS = os.environ.get('NATS_PASSWORD')
 JWT_SECRET = os.environ.get('JWT_SECRET', 'your-jwt-secret-key')
 JWT_ALGORITHM = 'HS256'
 JWT_EXPIRATION_HOURS = 24

@@ -7,5 +7,5 @@ restartPolicyMaxRetries = 3
 
 [environments.production]
 NATS_URL = "nats://htpi-nats.railway.internal:4222"
-NATS_USER = "admin"
-NATS_PASS = "${{NATS_PASSWORD}}"
+NATS_USER = "${{NATS_USER}}"
+NATS_PASSWORD = "${{NATS_PASSWORD}}"
